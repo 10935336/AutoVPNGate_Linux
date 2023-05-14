@@ -1,5 +1,5 @@
 # AutoVPNGate_Linux
-Automatically obtain openvpn configuration from VPNGate.net and auto-detect and replace. 
+Automatically obtain openvpn configuration from [VPNGate.net](https://www.vpngate.net/) and auto-detect and replace. 
 
 Linux only.
 <br>
@@ -7,7 +7,7 @@ Linux only.
 
 ## Introduce
 
-By default this automatically fetches the openvpn list from VPNGate.net
+By default this automatically fetches the openvpn list from [VPNGate.net](https://www.vpngate.net/)
 <br>
 <br>
 
