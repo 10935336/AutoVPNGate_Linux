@@ -46,7 +46,7 @@ It will execute when executing, `ip route add`, and then execute `ip route delet
 - Python 3.6.8 or higher
 - OpenVPN 2.4.12 or higher
 - iproute2-ss170501 OR higher
-- openvpn is configured with systemd and can be started with `systemctl start openvpn openvpn-client@<conf>`
+- OpenVPN is configured with systemd and can be started with `systemctl start openvpn-client@<conf>`
 <br>
 <br>
 
