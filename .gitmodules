@@ -1,0 +1,3 @@
+[submodule "module/vpn-gate-openvpn-udp"]
+	path = module/vpn-gate-openvpn-udp
+	url = https://github.com/hoang-rio/vpn-gate-openvpn-udp
