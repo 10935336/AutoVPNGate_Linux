@@ -21,7 +21,6 @@ import requests
 from vpngate import VPNGate
 
 
-
 def run_command_with_cleanup(command, cleanup_command):
     os.system(command)
     cleanup_commands.add(cleanup_command)
@@ -171,8 +170,7 @@ def route_add(openvpn_dev_name, test_ip):
                              cleanup_command=f'ip route delete {test_ip} dev {openvpn_dev_name}')
 
     # Add route, change it to your own command
-    run_command_with_cleanup(command=f'ip route add default dev {openvpn_dev_name} table 100',
-                             cleanup_command=f'ip route delete default dev {openvpn_dev_name} table 100')
+    # run_command_with_cleanup(command=f'ip route add default dev {openvpn_dev_name} table 100',cleanup_command=f'ip route delete default dev {openvpn_dev_name} table 100')
 
     logging.info(f'Route added "ip route add {test_ip} dev {openvpn_dev_name}"')
     logging.info(f'Route added "ip route add default dev {openvpn_dev_name} table 100"')
