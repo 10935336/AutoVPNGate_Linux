@@ -194,8 +194,8 @@ def get_ip_from_conf(openvpn_conf_name='vpngate_auto'):
 
 def kill_signal_handler(sig, frame):
     # do not remove sig or frame, even though it is not used
-    logging.info(f'{sig} signal received, cleaning...')
-    print(f'{sig} signal received, cleaning...')
+    logging.info(f'{sig} signal received, execute exit cleanup...')
+    print(f'{sig} signal received, execute exit cleanup...')
 
     os.system(f'systemctl stop openvpn-client@{openvpn_conf_name}')
     logging.info(f'Executed "systemctl stop openvpn-client@{openvpn_conf_name}"')
@@ -206,6 +206,9 @@ def kill_signal_handler(sig, frame):
         os.system(command)
         logging.info(f'executed "{command}"')
         print(f'executed "{command}"')
+
+    logging.info(f'Exit...')
+    print(f'Exit...')
 
     sys.exit(0)
 
