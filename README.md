@@ -7,18 +7,18 @@ Linux only.
 
 ## Introduce
 
-By default this automatically fetches the openvpn list from [VPNGate.net](https://www.vpngate.net/)
+By default this automatically fetches the openvpn list from [VPNGate.net](https://www.vpngate.net/).
 <br>
 <br>
 
-Then get a profile from the condition you specify, for example:
+Then get a openvpn config from the condition you specify, for example:
 ```
-get_vpn_config(country_short='KR', min_uptime=1000, choice_column=Ping, sort_by = 'lower', select_by=random,random_range=5)
+get_openvpn_config_from_vpngate(country_short='KR', min_uptime=1000, choice_column=Ping, sort_by = 'lower', select_by=random, random_range=5)
 ```
 That is to select the column whose country is KR and whose online time is greater than 1000, sort by ping value, the lower, the better, randomly select one of the lowest 5.
 
 ```
-get_vpn_config(country_short='US', min_uptime=100, choice_column=Score, sort_by = 'higher',select_by=fixed)
+get_openvpn_config_from_vpngate(country_short='US', min_uptime=100, choice_column=Score, sort_by = 'higher', select_by=fixed)
 ``` 
 That is to select the column whose country is US and whose online time is greater than 100, sort by Score value, the higher, the better, select the highest one
 <br>
