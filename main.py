@@ -4,7 +4,7 @@
 # Note: Linux only
 # Author: 10935336
 # Creation date: 2023-05-13
-# Modified date: 2023-05-14
+# Modified date: 2023-05-15
 
 import base64
 import csv
@@ -18,10 +18,9 @@ from random import choice
 
 import requests
 
-# use '.pth' or this
-sys.path.append('./module')
-sys.path.append('./module/vpn-gate-openvpn-udp')
-from vpngate import VPNGate
+main_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(main_dir, 'module/vpn-gate-openvpn-udp'))
+from vpngate import VPNGate  # noqa
 
 
 def run_command_with_cleanup(command, cleanup_command):
