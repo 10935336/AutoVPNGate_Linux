@@ -1,5 +1,5 @@
 # AutoVPNGate_Linux
-Automatically obtain openvpn configuration from VPNGate.net and auto-detect and replace. 
+Automatically obtain openvpn configuration from [VPNGate.net](https://www.vpngate.net/) and auto-detect and replace. 
 
 Linux only.
 <br>
@@ -7,7 +7,7 @@ Linux only.
 
 ## Introduce
 
-By default this automatically fetches the openvpn list from VPNGate.net
+By default this automatically fetches the openvpn list from [VPNGate.net](https://www.vpngate.net/)
 <br>
 <br>
 
@@ -45,6 +45,8 @@ It will execute when executing, `ip route add`, and then execute `ip route delet
 ## Require
 - Python 3.6.8 or higher
 - OpenVPN 2.4.12 or higher
+- iproute2-ss170501 OR higher
+- OpenVPN is configured with systemd and can be started with `systemctl start openvpn-client@<conf>`
 <br>
 <br>
 
