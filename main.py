@@ -32,12 +32,12 @@ def get_openvpn_config_from_vpngate(country_short, min_uptime, choice_column, so
     Get OPENVPN configuration files from VPNGate.net
 
     For example:
-    get_vpn_config(country_short='KR', min_uptime=1000, choice_column=Ping, sort_by = 'lower', select_by=random,
+    get_openvpn_config_from_vpngate(country_short='KR', min_uptime=1000, choice_column=Ping, sort_by = 'lower', select_by=random,
     random_range=5)
     That is to select the column whose country is KR and whose online time is greater than 1000,
     sort by ping value, the lower, the better, randomly select one of the lowest 5
 
-    get_vpn_config(country_short='US', min_uptime=100, choice_column=Score, sort_by = 'higher',
+    get_openvpn_config_from_vpngate(country_short='US', min_uptime=100, choice_column=Score, sort_by = 'higher',
     select_by=fixed)
     That is to select the column whose country is US and whose online time is greater than 100,
     sort by Score value, the higher, the better, select the highest one
@@ -125,15 +125,6 @@ def get_openvpn_config_from_vpngate(country_short, min_uptime, choice_column, so
     return config_data_base64
 
 
-def check_openvpn_connectivity(openvpn_dev_name, test_ip):
-    result = os.system(f'ping -c 3 -W 2 {test_ip} -I {openvpn_dev_name} &> /dev/null')
-    if result != 0:
-        logging.warning('Ping test failed, trying to add route...')
-        route_add(openvpn_dev_name, test_ip)
-        result = os.system(f'ping -c 3 -W 2 {test_ip} -I {openvpn_dev_name} &> /dev/null')
-    return result == 0
-
-
 def deploy_openvpn_config(config_data_base64, openvpn_conf_name='vpngate_auto',
                           openvpn_dev_name='vpngate_tun_auto'):
     logging.info('Deploying new configuration...')
@@ -155,26 +146,48 @@ def deploy_openvpn_config(config_data_base64, openvpn_conf_name='vpngate_auto',
         logging.exception(f'Cannot decode config_data: {error}')
 
 
-def restart_openvpn(openvpn_dev_name, test_ip, openvpn_conf_name='vpngate_auto'):
+def restart_openvpn(openvpn_dev_name, ping_test_ip, openvpn_conf_name='vpngate_auto'):
     logging.info('Restarting OPENVPN...')
     os.system(f'systemctl restart openvpn-client@{openvpn_conf_name}')
     # wait for restart
     time.sleep(10)
-    route_add(openvpn_dev_name, test_ip)
+    route_add(openvpn_dev_name, ping_test_ip)
 
 
-def route_add(openvpn_dev_name, test_ip):
+def check_openvpn_connectivity(openvpn_dev_name, ping_test_ip, http_test_ip, http_test_protocol):
+    ping_result = os.system(f'ping -c 3 -W 2 {ping_test_ip} -I {openvpn_dev_name} &> /dev/null')
+    http_result = os.system(f'curl {http_test_protocol}{http_test_ip} --interface {openvpn_dev_name} &> /dev/null')
+    result = ping_result + http_result
+
+    if ping_result != 0 or http_result != 0:
+        logging.warning('Ping or http test failed, trying to add route...')
+        route_add(openvpn_dev_name, ping_test_ip, http_test_ip)
+        ping_result = os.system(f'ping -c 3 -W 2 {ping_test_ip} -I {openvpn_dev_name} &> /dev/null')
+        http_result = os.system(f'curl {http_test_protocol}{http_test_ip} --interface {openvpn_dev_name} &> /dev/null')
+        result = ping_result + http_result
+
+    return result == 0
+
+
+def route_add(openvpn_dev_name, ping_test_ip, http_test_ip):
     logging.info('Adding route...')
 
-    # Add test_ip route, use it for detection
-    run_command_with_cleanup(command=f'ip route add {test_ip} dev {openvpn_dev_name}',
-                             cleanup_command=f'ip route delete {test_ip} dev {openvpn_dev_name}')
+    # Add ping_test_ip route, use it for detection
+    run_command_with_cleanup(command=f'ip route add {ping_test_ip} dev {openvpn_dev_name}',
+                             cleanup_command=f'ip route delete {ping_test_ip} dev {openvpn_dev_name}')
+    logging.info(f'Route added "ip route add {ping_test_ip} dev {openvpn_dev_name}"')
+
+    # Add http_test_ip route, use it for detection
+    run_command_with_cleanup(command=f'ip route add {http_test_ip} dev {openvpn_dev_name}',
+                             cleanup_command=f'ip route delete {http_test_ip} dev {openvpn_dev_name}')
+    logging.info(f'Route added "ip route add {http_test_ip} dev {openvpn_dev_name}"')
+
 
     # Add route, change it to your own command
     # run_command_with_cleanup(command=f'ip route add default dev {openvpn_dev_name} table 100',cleanup_command=f'ip route delete default dev {openvpn_dev_name} table 100')
+    # logging.info(f'Route added "ip route add default dev {openvpn_dev_name} table 100"')
 
-    logging.info(f'Route added "ip route add {test_ip} dev {openvpn_dev_name}"')
-    logging.info(f'Route added "ip route add default dev {openvpn_dev_name} table 100"')
+
 
 
 def get_ip_from_conf(openvpn_conf_name='vpngate_auto'):
@@ -229,8 +242,15 @@ if __name__ == '__main__':
     openvpn_dev_name = 'vpngate_tun0'
     # openvpn configuration file name
     openvpn_conf_name = 'vpngate_auto'
-    # test ip, use for ICMP ping detection
-    test_ip = '8.8.8.8'
+    # ping test ip, use it for ICMP ping detection, default 8.8.4.4 Google DNS
+    ping_test_ip = '8.8.4.4'
+    # http test ip, use it for http curl detection, default https://1.0.0.1 Cloudflare DNS and web
+    # It is better to choose an ip with https
+    http_test_protocol = 'https://'
+    http_test_ip = '1.0.0.1'
+    # If you use 8.8.4.4 or 1.0.0.1 as your dns,
+    # you'd better change it to other values, so as not to be affected by the routing table
+
     # Fill in the vpngate-openvpn type to be obtained here,
     # see the get_openvpn_config_from_vpngate() definition for the usage method
     get_openvpn_config_from_vpngate_params = {
@@ -243,7 +263,7 @@ if __name__ == '__main__':
     }
     # please check route_add() command
 
-    # Don't touch,record the cleanup command corresponding to the command
+    # Don't touch, record the cleanup command corresponding to the command
     cleanup_commands = set()
 
     # log
@@ -253,8 +273,9 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, kill_signal_handler)
     signal.signal(signal.SIGTERM, kill_signal_handler)
 
+    # Check and replace
     while True:
-        if not check_openvpn_connectivity(openvpn_dev_name, test_ip):
+        if not check_openvpn_connectivity(openvpn_dev_name, ping_test_ip):
             logging.warning(
                 f'VPN connection lost. Obtaining new configuration... Lost ip: "{get_ip_from_conf(openvpn_conf_name)}"')
 
@@ -263,9 +284,9 @@ if __name__ == '__main__':
             if config_data:
                 logging.info('Obtain new configuration success.')
                 deploy_openvpn_config(config_data, openvpn_dev_name=openvpn_dev_name)
-                restart_openvpn(openvpn_dev_name, test_ip, openvpn_conf_name=openvpn_conf_name)
+                restart_openvpn(openvpn_dev_name, ping_test_ip, openvpn_conf_name=openvpn_conf_name)
 
-                if check_openvpn_connectivity(openvpn_dev_name, test_ip):
+                if check_openvpn_connectivity(openvpn_dev_name, ping_test_ip):
                     logging.info(f'VPN connection restored. Current ip: "{get_ip_from_conf(openvpn_conf_name)}"')
                 else:
                     logging.error('Failed to restore VPN connection.')
