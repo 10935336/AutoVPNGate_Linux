@@ -24,7 +24,7 @@ That is to select the column whose country is US and whose online time is greate
 <br>
 <br>
 
-VPN availability is detected via ICMP ping every 60 seconds, and if unavailable, it is automatically reacquired and deployed.
+VPN availability is detected via ICMP ping and https GET every 60 seconds, and if unavailable, it is automatically reacquired and deployed.
 
 Adds route-nopull to the openvpn config file by default to let you choose which routes you want to add.
 <br>
