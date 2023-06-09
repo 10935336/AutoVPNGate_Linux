@@ -34,11 +34,12 @@ Check `route_add()` Then add your own routes, or remove `os.system(f'grep route-
 <br>
 <br>
 
-`run_command_with_cleanup()` can record a set of relative commands, such as
+
+`run_command_with_cleanup()` can record a set of relative commands that one for adding and one for cleaning, such as
 ```
-run_command_with_cleanup(ip route add, ip route delete)
+run_command_with_cleanup('ip route add', 'ip route delete')
 ```
-It will execute when executing, `ip route add`, and then execute `ip route delete` at the end of the program(SIGINT, SIGTERM).
+It will execute `ip route add` when executing, and then execute `ip route delete` at the end of the program (receive signal SIGINT, SIGTERM).
 <br>
 <br>
 
@@ -47,7 +48,7 @@ It will execute when executing, `ip route add`, and then execute `ip route delet
 - OpenVPN 2.4.12 or higher
 - iproute2-ss170501 or  higher
 - curl 7.29.0 or higher
-- OpenVPN is configured with systemd and can be started with `systemctl start openvpn-client@<conf>`
+- OpenVPN is configured with systemd and can be started with `systemctl start openvpn-client@<conf>` (RHEL and its clones can do this with `yum install openvpn`)
 <br>
 <br>
 
