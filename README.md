@@ -60,8 +60,35 @@ It will execute `ip route add` when executing, and then execute `ip route delete
 <br>
 <br>
 
+## Manage with systemctl
+- `vi /etc/systemd/system/AutoVPNGate_Linux.service`
+
+write the following
+```
+[Unit]
+Description=AutoVPNGate_Linux
+
+[Service]
+ExecStart=/usr/bin/python3 /path_to_AVL/AutoVPNGate_Linux/main.py
+Restart=always
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target
+```
+
+
+- `systemctl daemon-reload`
+
+- `systemctl enable --now AutoVPNGate_Linux.service`
+
+
+
+
+
 ## library reference
 When VPNGate API is not available, use this way to get csv.
 - https://github.com/hoang-rio/vpn-gate-openvpn-udp
-- Author： [hoang-rio](https://github.com/hoang-rio) 
+- Author: [hoang-rio](https://github.com/hoang-rio) 
 - License: [MIT License](https://github.com/hoang-rio/vpn-gate-openvpn-udp/blob/master/LICENSE)
