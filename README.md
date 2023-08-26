@@ -54,7 +54,9 @@ It will execute `ip route add` when executing, and then execute `ip route delete
 
 ## Quick start
 - Run `git clone --recursive https://github.com/10935336/AutoVPNGate_Linux.git`
-- Check and change the `if __name__ == '__main__':` variable in `main.py` to your liking.
+- Run `cd AutoVPNGate_Linux`
+- Run `pip install -r requirements.txt`
+- Open `main.py` and check and change the variable after `if __name__ == '__main__':` to your liking.
 - Check `route_add()` Then add your own routes, or remove `os.system(f'grep route-nopull {openvpn_conf_path} || echo route-nopull >> {openvpn_conf_path}')` and let openvpn manage routes automatically.
 - Run `python3 main.py`
 <br>
